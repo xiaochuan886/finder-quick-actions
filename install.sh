@@ -16,7 +16,13 @@ if [ "$(uname -s)" != "Darwin" ]; then
   echo "❌ 仅支持 macOS / macOS only"; exit 1
 fi
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# "${BASH_SOURCE[0]}" is unset when piped from stdin (curl | bash) → download mode
+SCRIPT_SOURCE="${BASH_SOURCE[0]:-}"
+if [ -n "$SCRIPT_SOURCE" ]; then
+  SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_SOURCE")" && pwd)"
+else
+  SCRIPT_DIR="/nonexistent"
+fi
 
 # Running standalone (e.g. curl | bash): fetch the repo tarball first.
 if [ ! -d "$SCRIPT_DIR/workflows" ]; then
